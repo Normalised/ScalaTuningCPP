@@ -7,6 +7,9 @@ namespace relivethefuture {
     NoteMap ScalaTuning::getNoteMapFromFile(const std::string filename) {
         
         std::ifstream in(filename);
+        if(!in.good()) {
+            throw new std::invalid_argument("File not found");
+        }
         std::string contents((std::istreambuf_iterator<char>(in)),
                              std::istreambuf_iterator<char>());
         

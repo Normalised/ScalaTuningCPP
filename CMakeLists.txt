@@ -1,8 +1,16 @@
+# CMAKE Lists adapted from SQLiteCPP by Sebastien Rombauts
+# 
+# Distributed under the MIT License (MIT) (See accompanying file LICENSE.txt
+# or copy at http://opensource.org/licenses/MIT) 
+
 cmake_minimum_required(VERSION 2.8.12)
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
+
 project (ScalaTuning)
 
 set(CMAKE_BUILD_TYPE Release)
 
+# MacOS rpath policy
 cmake_policy(SET CMP0042 NEW)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -33,7 +41,7 @@ source_group(tests FILES ${SCALATUNINGCPP_TESTS})
 set(SCALATUNINGCPP_EXAMPLES
  examples/loadScl/main.cpp
 )
-source_group(example1 FILES ${SCALATUNINGCPP_EXAMPLES})
+source_group(loadSclExample FILES ${SCALATUNINGCPP_EXAMPLES})
 
 # list of doc files of the library
 set(SCALATUNINGCPP_DOC
@@ -49,4 +57,13 @@ source_group(doc FILES ${SCALATUNINGCPP_DOC})
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
  
-add_library(ScalaTuningCPP SHARED ${SCALATUNINGCPP_SRC} ${SCALATUNINGCPP_INC} ${SCALATUNINGCPP_DOC} ${SCALATUNINGCPP_SCRIPT})
+add_library(ScalaTuningCpp SHARED ${SCALATUNINGCPP_SRC} ${SCALATUNINGCPP_INC} ${SCALATUNINGCPP_DOC} ${SCALATUNINGCPP_SCRIPT})
+
+option(SCALATUNINGCPP_BUILD_EXAMPLES "Build examples." OFF)
+if (SCALATUNINGCPP_BUILD_EXAMPLES)
+    # add the basic example executable
+    add_executable(ScalaTuningCpp_loadSclExample ${SCALATUNINGCPP_EXAMPLES})
+    target_link_libraries(ScalaTuningCpp_loadSclExample ScalaTuningCpp)
+else (SCALATUNINGCPP_BUILD_EXAMPLES)
+    message(STATUS "SCALATUNINGCPP_BUILD_EXAMPLES OFF")
+endif (SCALATUNINGCPP_BUILD_EXAMPLES)

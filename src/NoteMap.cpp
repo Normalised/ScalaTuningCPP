@@ -2,6 +2,7 @@
 #include "ScalaTuningCPP/NoteMap.h"
 
 #include <cmath>
+#include <utility>
 
 namespace relivethefuture {
     
@@ -121,7 +122,7 @@ namespace relivethefuture {
     }
     
     std::pair<int, int> NoteMap::getPitchBendRange() {
-        return std::make_pair<int, int>(pitchBendRangeUp, pitchBendRangeDown);
+        return std::make_pair(pitchBendRangeUp, pitchBendRangeDown);
     }
 
 }
