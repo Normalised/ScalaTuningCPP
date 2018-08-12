@@ -7,7 +7,7 @@
 namespace relivethefuture {
     
     NoteMap::NoteMap() {
-        // create 12 TET Note Map
+        resetTo12Tet();
     }
     
     NoteMap::NoteMap(std::vector<double> ratios) {
