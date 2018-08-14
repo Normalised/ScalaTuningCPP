@@ -2,28 +2,40 @@
 
 #include <cmath>
 
+#include <iostream>
+#include <stdexcept>
+
 namespace relivethefuture {
 
+    // trim from start (in place)
+    static inline void ltrim(std::string &s) {
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+            return !std::isspace(ch);
+        }));
+    }
+    
     NoteMap ScalaTuning::getNoteMapFromFile(const std::string filename) {
         
         std::ifstream in(filename);
         if(!in.good()) {
-            throw new std::invalid_argument("File not found");
+            // TODO : Add C++17 version with new file exceptions
+            throw std::invalid_argument("File not found");
         }
         std::string contents((std::istreambuf_iterator<char>(in)),
                              std::istreambuf_iterator<char>());
         
-        const auto ratios = parse(contents);
-        
+        std::vector<double> ratios;
+        bool success = parse(contents, ratios);
+        if(!success) {
+            throw ParseException();
+        }
         NoteMap noteMap(ratios);
         return noteMap;
     }
     
-    std::vector<double> ScalaTuning::parse(std::string & tuning) {
+    bool ScalaTuning::parse(std::string & tuning, std::vector<double> & ratios) {
 
         bool inComment = false;
-
-        std::vector<double> ratios;
 
         int numEntries = 0;
         ratios.push_back(1.0);
@@ -110,8 +122,15 @@ namespace relivethefuture {
             {
                 if (character == '\n')
                 {
-                    const auto ratio = processRatioString(currentLine);
-                    ratios.push_back(ratio);
+                    try {
+                        const auto ratio = processRatioString(currentLine);
+                        //std::cout << "Adding ratio " << ratio << std::endl;
+                        ratios.push_back(ratio);
+                        //std::cout << "Ratio count " << ratios.size() << std::endl;
+                    } catch(const std::invalid_argument & e) {
+                        //std::cout << "Invalid argument processing ratio string " << e.what() << std::endl;
+                        return false;
+                    }
                     currentLine = "";
                 }
                 else
@@ -119,19 +138,24 @@ namespace relivethefuture {
                     currentLine += character;
                 }
             }
-            if(ratios.size() > 127)
-            {
-                break;
-            }
         }
 
-        return ratios;
+        // ratios has the 1/1 entry, numEntries doesn't include that.
+        if(numEntries != ratios.size() - 1) {
+            //std::cout << "Num entries not equal to parsed ratios size. " << numEntries << " != " << ratios.size() << std::endl;
+            return false;
+        }
+        if(state != ScalaParseState::RATIO_STATE) {
+            return false;
+        }
+        return true;
 
     }
     
     double ScalaTuning::processRatioString(std::string & ratioText)
     {
         double ratio = 0.0;
+        ltrim(ratioText);
         
         if (ratioText.find(".") != std::string::npos)
         {
@@ -139,17 +163,17 @@ namespace relivethefuture {
             double cents = 0.0;
             if (spacePos != std::string::npos)
             {
+                //std::cout << "Space pos " << spacePos << ". Ratio Text " << ratioText << std::endl;
                 std::string centsSubstring = ratioText.substr(0, spacePos);
-                
                 cents = std::stod(centsSubstring);
             }
             else
             {
+                //std::cout << "Ratio Text " << ratioText << std::endl;
                 cents = std::stod(ratioText);
             }
             
             ratio = pow(2, (cents / 100.0) / 12.0);
-            
         }
         else if (ratioText.find("/") != std::string::npos)
         {
@@ -159,7 +183,10 @@ namespace relivethefuture {
             if (numerator != 0 && denominator != 0)
             {
                 ratio = numerator / denominator;
+            } else {
+                throw std::invalid_argument("Numerator or denominator is zero in " + ratioText);
             }
+            //std::cout << "Ratio Text " << ratioText << std::endl;
         }
         else
         {

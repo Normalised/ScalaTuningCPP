@@ -20,3 +20,4 @@ CMakeFiles
 *.dir
 Testing
 Win32
+cmake-build-*

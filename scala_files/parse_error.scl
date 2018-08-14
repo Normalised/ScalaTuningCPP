@@ -1,0 +1,6 @@
+! parse_error.scl
+!
+ abc123
+!
+this should fail
+and generate an exception
