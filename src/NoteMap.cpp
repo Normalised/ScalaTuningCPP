@@ -3,8 +3,6 @@
 
 #include <cmath>
 #include <utility>
-#include <ScalaTuningCPP/NoteMap.h>
-
 
 namespace relivethefuture {
     
@@ -62,7 +60,7 @@ namespace relivethefuture {
     }
 
     void NoteMap::setRatios(std::vector<double> ratios) {
-        const auto numRatios = ratios.size();
+        const auto numRatios = ratios.size() - 1;
         if(numRatios < 2) {
             // TODO
             // Just octaves
