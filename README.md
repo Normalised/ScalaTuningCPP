@@ -1,2 +1,2 @@
 # ScalaTuningCPP
-Scala tuning support for C++ developers
+Scala tuning support for C++
