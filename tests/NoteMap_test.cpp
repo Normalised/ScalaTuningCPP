@@ -9,24 +9,24 @@ TEST(NoteMap, default12Tet) {
 }
 
 TEST(NoteMap, albionRatios) {
-    std::vector<double> albionRatios {
+    const std::vector<double> albionRatios {
         1,
-        16/15,
-        9/8,
-        6/5,
-        5/4,
-        4/3,
-        64/45,
-        3/2,
-        8/5,
-        5/3,
-        16/9,
-        15/8,
-        2/1
+        16.0/15.0,
+        9.0/8.0,
+        6.0/5.0,
+        5.0/4.0,
+        4.0/3.0,
+        64.0/45.0,
+        3.0/2.0,
+        8.0/5.0,
+        5.0/3.0,
+        16.0/9.0,
+        15.0/8.0,
+        2.0/1.0
     };
     
     relivethefuture::NoteMap albionNoteMap(albionRatios);
     
-    EXPECT_EQ(16/15, albionNoteMap.getRatio(61));
+    EXPECT_EQ(1.5, albionNoteMap.getRatio(67));
 }
 
