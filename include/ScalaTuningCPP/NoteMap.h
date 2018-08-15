@@ -1,3 +1,6 @@
+#ifndef NOTE_MAP_H
+#define NOTE_MAP_H
+
 #pragma once
 
 #include <map>
@@ -167,3 +170,5 @@ namespace relivethefuture {
         int pitchBendRangeDown = 12;
     };
 }
+
+#endif

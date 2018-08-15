@@ -1,3 +1,6 @@
+#ifndef SCALA_TUNING_H
+#define SCALA_TUNING_H
+
 #pragma once
 
 #include <map>
@@ -70,3 +73,5 @@ namespace relivethefuture {
 
     };
 }
+
+#endif
