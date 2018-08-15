@@ -1,19 +1,17 @@
 #include "ScalaTuningCPP/ScalaTuning.h"
 
 #include <cmath>
-
 #include <iostream>
 #include <stdexcept>
 
 namespace relivethefuture {
 
-    // trim from start (in place)
-    static inline void ltrim(std::string &s) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
-            return !std::isspace(ch);
-        }));
+    std::string& ltrim(std::string& str, const std::string& chars = "\t\n\v\f\r ")
+    {
+        str.erase(0, str.find_first_not_of(chars));
+        return str;
     }
-    
+
     NoteMap ScalaTuning::getNoteMapFromFile(const std::string filename) {
         
         std::ifstream in(filename);
@@ -104,11 +102,11 @@ namespace relivethefuture {
                     try {
                         numEntries = std::stoi(currentLine);
                     } catch (std::exception & e) {
-                        break;
+                        return false;
                     }
                     if (numEntries == 0)
                     {
-                        break;
+                        return false;
                     }
 
                     currentLine = "";
@@ -155,7 +153,7 @@ namespace relivethefuture {
     double ScalaTuning::processRatioString(std::string & ratioText)
     {
         double ratio = 0.0;
-        ltrim(ratioText);
+        ratioText = ltrim(ratioText);
         
         if (ratioText.find(".") != std::string::npos)
         {
