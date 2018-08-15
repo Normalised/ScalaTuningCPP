@@ -4,20 +4,11 @@ mkdir build
 cd build
 
 @REM Generate a Visual Studio solution for latest version found
-cmake ..
-if ERRORLEVEL 1 goto onError
+cmake -DSCALATUNINGCPP_BUILD_TESTS=1 -G "Visual Studio 15 2017 Win64" ..
 
 @REM Build default configuration (ie 'Debug')
 cmake --build .
-if ERRORLEVEL 1 goto onError
 
-@REM Build and run tests
-@REM ctest --output-on-failure
-if ERRORLEVEL 1 goto onError
+ctest --output-on-failure
 
-cd ..
-exit
-
-:onError
-@echo An error occured!
 cd ..

@@ -9,7 +9,7 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment ve
 project (ScalaTuning)
 
 set(CMAKE_BUILD_TYPE Release)
-
+set(CMAKE_SUPPRESS_REGENERATION true)
 
 # MacOS rpath policy
 cmake_policy(SET CMP0042 NEW)
@@ -17,6 +17,39 @@ cmake_policy(SET CMP0042 NEW)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
+
+# then Compiler/IDE differences:
+if (MSVC)
+    set(CPPLINT_ARG_OUTPUT      "--output=vs7")
+    set(CPPCHECK_ARG_TEMPLATE   "--template=vs")
+    # disable Visual Studio warnings for fopen() used in the example
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    # Flags for linking with multithread static C++ runtime, required by googletest
+    if (SCALATUNINGCPP_BUILD_TESTS)
+        message(STATUS "Linking against multithread static C++ runtime for unit tests with googletest")
+        set(CMAKE_C_FLAGS_RELEASE   "${CMAKE_C_FLAGS_RELEASE} /MT")
+        set(CMAKE_C_FLAGS_DEBUG     "${CMAKE_C_FLAGS_DEBUG} /MTd")
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+        set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+    endif (SCALATUNINGCPP_BUILD_TESTS)
+else (MSVC)
+    set(CPPLINT_ARG_OUTPUT      "--output=eclipse")
+    set(CPPCHECK_ARG_TEMPLATE   "--template=gcc")
+    # Useful compile flags and extra warnings 
+    add_compile_options(-fstack-protector -Wall -Wextra -Wpedantic -Wno-long-long -Wswitch-enum -Wshadow -Winline)
+    if (CMAKE_COMPILER_IS_GNUCXX)
+        # GCC flags
+        if (SCALATUNINGCPP_USE_GCOV AND CMAKE_COMPILER_IS_GNUCXX)
+            if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+                message (STATUS "Using GCov instrumentation")
+            else ()
+                message (WARNING "GCov instrumentation works best in Debug mode")
+            endif ()
+            add_compile_options (-coverage) # NOTE would be usefull but not working with current google test and gcc 4.8 -fkeep-inline-functions
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -coverage")
+        endif ()
+    endif (CMAKE_COMPILER_IS_GNUCXX)
+endif (MSVC)
 
 # list of sources files of the library
 set(SCALATUNINGCPP_SRC
@@ -60,6 +93,7 @@ source_group(doc FILES ${SCALATUNINGCPP_DOC})
 # scala test files
 set(SCALATUNINGCPP_SCL
     scala_files/riley_albion.scl
+    scala_files/parse_error.scl
     scala_files/fortune.scl
     scala_files/harm6.scl
 )
@@ -67,8 +101,8 @@ source_group(scala_files FILES ${SCALATUNINGCPP_SCL})
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
  
-add_library(ScalaTuningCpp SHARED ${SCALATUNINGCPP_SRC} ${SCALATUNINGCPP_INC} ${SCALATUNINGCPP_DOC} ${SCALATUNINGCPP_SCRIPT})
-add_library(ScalaTuningCppStatic STATIC ${SCALATUNINGCPP_SRC} ${SCALATUNINGCPP_INC} ${SCALATUNINGCPP_DOC} ${SCALATUNINGCPP_SCRIPT})
+add_library(ScalaTuningCpp ${SCALATUNINGCPP_SRC} ${SCALATUNINGCPP_INC} ${SCALATUNINGCPP_DOC} ${SCALATUNINGCPP_SCRIPT})
+#add_library(ScalaTuningCppStatic STATIC ${SCALATUNINGCPP_SRC} ${SCALATUNINGCPP_INC} ${SCALATUNINGCPP_DOC} ${SCALATUNINGCPP_SCRIPT})
 
 option(SCALATUNINGCPP_BUILD_EXAMPLES "Build examples." OFF)
 if (SCALATUNINGCPP_BUILD_EXAMPLES)
